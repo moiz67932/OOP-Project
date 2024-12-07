@@ -1,138 +1,32 @@
-//#include "Screen.h"
-//
-//Screen::Screen(int x, int y) : resolutionX(x), resolutionY(y) {
-//    // Create an SFML window with the given resolution
-//    window = new sf::RenderWindow(sf::VideoMode(resolutionX, resolutionY), "GameBoy Screen");
-//}
-//
-//Screen::~Screen() {
-//    // Close and clean up the SFML window
-//    //window->close();
-//    delete window;
-//}
-//
-//void Screen::manageState()
-//{
-//}
-//
-//// Render Menu
-//void Screen::render(Menu* menu) {
-//    menu->display(*window);
-//}
-//
-//// Render Game
-//void Screen::render(Game* game) {
-//    game->display(*window);
-//}
-//
-//// Main loop 
-//void Screen::render(Menu* menu, Game* game) {
-//    void* activeScreen = menu; // Start with the menu
-//
-//    // Main loop to keep the window open
-//    while (window->isOpen()) {
-//        sf::Event event;
-//        while (window->pollEvent(event)) {
-//            if (event.type == sf::Event::Closed)
-//                window->close();
-//
-        //    // Handle click events when on the menu
-        //    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        //        if (activeScreen == menu) { 
-        //            int clickedOption = menu->checkClick(*window);
-        //            if (clickedOption == 1) { 
-        //                activeScreen = game; 
-        //            }
-        //        }
-        //    }
-        //}
-//
-//        window->clear();
-//
-//        // Render Menu
-//        if (activeScreen == menu) {
-//            render(menu); 
-//        }
-//        else if (activeScreen == game) {
-//            render(game);
-//        }
-//
-//        window->display();
-//    }
-//}
 #include "Screen.h"
-#include <SFML/Graphics.hpp>
-#include <iostream>
+#include "SoundSystem.h"
 
-// Constructor initializes the SFML window
+
+// Constructor 
 Screen::Screen(int resolutionX, int resolutionY) {
     window = new sf::RenderWindow(sf::VideoMode(resolutionX, resolutionY), "GameBoy Screen");
-    gameState = nullptr;  // Initially no state
-    menuState = nullptr;  // Initially no state
+    gameState = nullptr; 
+    menuState = nullptr;
+    soundSystem = nullptr;
 }
 
-// Destructor to clean up the dynamically allocated window
+// Destructor
 Screen::~Screen() {
     delete window;
 }
 
-// Manages state transitions and renders the active state
-//void Screen::manageState(Menu* menu, Snake* snake, Wordle* wordle, Hangman* hangman) {
-//    // Set the initial state to the menu
-//    if (!gameState) {
-//        menuState = menu;
-//    }
-//
-//    while (window->isOpen()) {
-//        sf::Event event;
-//        while (window->pollEvent(event)) {
-//            if (event.type == sf::Event::Closed) {
-//                window->close();
-//            }
-//
-//            // Handle click events when on the menu
-//            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-//                if (menuState == menu) {
-//                    int clickedOption = menu->checkClick(*window);
-//                    if (clickedOption == 0) {  // "Snake" clicked
-//                        gameState = snake;
-//                        snake->startGame();  // Initialize Snake game
-//                    }
-//                    else if (clickedOption == 1) {  // "Wordle" clicked
-//                        gameState = wordle;
-//                        wordle->startGame();  // Initialize Wordle game
-//                    }
-//                    else if (clickedOption == 2) {  // "Hangman" clicked
-//                        gameState = hangman;
-//                        hangman->startGame();  // Initialize Hangman game
-//                    }
-//                }
-//            }
-//
-//            // Pass input events to the current game when it's active
-//            if (gameState == wordle && event.type == sf::Event::TextEntered) {
-//                wordle->handleInput(event);
-//            }
-//            else if (gameState == wordle && event.type == sf::Event::KeyPressed) {
-//                wordle->handleInput(event);
-//            }
-//            else if (gameState == wordle && event.type == sf::Event::MouseButtonPressed) {
-//                wordle->handleInput(event);
-//            }
-//            // Check if Wordle wants to return to menu
-//            if (gameState == wordle && wordle->shouldReturnToMenu) {
-//                gameState = nullptr;
-//                wordle->shouldReturnToMenu = false;
-//                break;  // Exit the game loop to reset game states
-//            }
-//        }
-//
-//        // Render the active state
-//        renderCurrentState(*window);
-//    }
-//}
+void Screen::setSoundSystem(SoundSystem* currentsoundSystem)
+{
+    this->soundSystem = currentsoundSystem;
+    this->soundSystem->initMusic("./assets/music/music.mp3", "./assets/music/music.mp3");
+
+}
 
 void Screen::manageState(Menu* menu, Snake* snake, Wordle* wordle, Hangman* hangman) {
+    sf::Clock clock; // Add a clock to track time for updates
+    const int frameTime = 100; // Milliseconds per frame (can align with snake's speed)
+
+
     // Set the initial state to the menu
     if (!gameState) {
         menuState = menu;
@@ -146,23 +40,28 @@ void Screen::manageState(Menu* menu, Snake* snake, Wordle* wordle, Hangman* hang
                 return;
             }
 
-            // Handle click events when on the menu
+                soundSystem->handleInput(event);
+                soundSystem->updateMusicState();
+            
+
+
+            // Handle Events on the menu
             if (menuState == menu &&
                 event.type == sf::Event::MouseButtonPressed &&
                 event.mouseButton.button == sf::Mouse::Left) {
 
                 int clickedOption = menu->checkClick(*window);
-                if (clickedOption == 0) {  // "Snake" clicked
+                if (clickedOption == 0) {  
                     gameState = snake;
-                    snake->startGame();  // Initialize Snake game
+                    snake->startGame();  
                 }
-                else if (clickedOption == 1) {  // "Wordle" clicked
+                else if (clickedOption == 1) {  
                     gameState = wordle;
-                    wordle->startGame();  // Initialize Wordle game
+                    wordle->startGame();
                 }
-                else if (clickedOption == 2) {  // "Hangman" clicked
+                else if (clickedOption == 2) {  
                     gameState = hangman;
-                    hangman->startGame();  // Initialize Hangman game
+                    hangman->startGame(); 
                 }
                 menuState = nullptr;
             }
@@ -176,18 +75,47 @@ void Screen::manageState(Menu* menu, Snake* snake, Wordle* wordle, Hangman* hang
                 }
             }
 
-            // Check if Wordle wants to return to menu
-            if (gameState == wordle && wordle != nullptr  && wordle->shouldReturnToMenu) {
-                //gameState = nullptr;
-                menuState = menu;
-                wordle->shouldReturnToMenu = false;
-                //wordle->resetGame();  // Reset the game state
-                break;  // Break the inner event loop to restart
+            // Pass input events to the current game
+            if (gameState == hangman && hangman != nullptr) {
+                if (event.type == sf::Event::TextEntered ||
+                    event.type == sf::Event::KeyPressed ||
+                    event.type == sf::Event::MouseButtonPressed) {
+                    hangman->handleInput(event);
+                }
             }
+
+            // Pass input events to the current game
+            //if (gameState == snake && snake != nullptr) {
+            //    if (event.type == sf::Event::TextEntered ||
+            //        event.type == sf::Event::KeyPressed ||
+            //        event.type == sf::Event::MouseButtonPressed) {
+            //        snake->handleInput(event);
+            //    }
+            //}
+
+                    // Handle game logic updates based on timer
+            if (gameState == snake && clock.getElapsedTime().asMilliseconds() >= frameTime) {
+                snake->handleInput(event);
+                snake->updateGame();
+                clock.restart(); // Reset the clock for the next update
+            }
+
+
+
+            // Check if Wordle wants to return to menu
+            //if (gameState == wordle && wordle != nullptr  && wordle->shouldReturnToMenu) {
+            //    //gameState = nullptr;
+            //    menuState = menu;
+            //    wordle->shouldReturnToMenu = false;
+            //    gameState = nullptr;
+            //    //wordle->resetGame();  // Reset the game state
+            //    break;  // Break the inner event loop to restart
+            //}
         }
 
         // Render the current state
         renderCurrentState(*window);
+        soundSystem->render(*window);
     }
 }
 // Renders the current state

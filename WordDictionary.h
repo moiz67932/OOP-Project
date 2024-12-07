@@ -2,6 +2,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include<string>
+
 
 class WordDictionary {
 private:
@@ -14,7 +16,7 @@ public:
     WordDictionary();
 
     // Get a random word from the dictionary
-    void getRandomWord(char* word);
+    void getRandomWord(std::string& targetWord);
 
     // Get total number of words in the dictionary
     int getTotalWords() const;

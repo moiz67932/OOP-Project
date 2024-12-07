@@ -54,7 +54,6 @@ Wordle::~Wordle() {
 
 void Wordle::startGame() {
     std::cout << "Starting Wordle Game!" << std::endl;
-    // Setup the Wordle game (e.g., generate a random word, reset guesses)
 }
 
 void Wordle::endGame() {
@@ -107,8 +106,9 @@ void Wordle::checkWord() {
     }
 
     // Create a copy of the target word to track matched letters
-    char tempTargetWord[6];
-    strcpy_s(tempTargetWord, targetWord);
+    //char tempTargetWord[6];
+    std::string tempTargetWord = targetWord;
+    //strcpy(tempTargetWord, targetWord);
 
     // Exact Match
     for (int j = 0; j < 5; j++) {

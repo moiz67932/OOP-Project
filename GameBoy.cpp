@@ -144,15 +144,19 @@
 GameBoy::GameBoy() {
     // Initialize Screen and Menu
     screen = new Screen(800, 600);
+    soundSystem = new SoundSystem();
+    soundSystem->setScreen(screen);
 }
 
 GameBoy::~GameBoy() {
     // Clean up dynamically allocated memory
     delete screen;
+    delete soundSystem;
 }
 
 void GameBoy::start() {
     // Use the screen to display the menu
+    screen->setSoundSystem(soundSystem);
     screen->manageState(&menu, &snakeGame, &wordleGame, &hangmanGame);
 
 }

@@ -54,13 +54,18 @@ WordDictionary::WordDictionary() {
     strcpy_s(dictionary[49], "MAGIC");
 }
 
-void WordDictionary::getRandomWord(char* word) {
-    // Seed the random number generator
+void WordDictionary::getRandomWord(std::string& targetWord) {
+    //// Seed the random number generator
+
+    //// Select a random word from the dictionary
+    //int randomIndex = rand() % MAX_WORDS;
+    //strcpy_s(word, WORD_LENGTH, dictionary[randomIndex]);
+    static bool seeded = false;
+    
     srand(time(nullptr));
 
-    // Select a random word from the dictionary
-    int randomIndex = rand() % MAX_WORDS;
-    strcpy_s(word, WORD_LENGTH, dictionary[randomIndex]);
+    int randomIndex = std::rand() % 50;
+    targetWord = dictionary[randomIndex];
 }
 
 int WordDictionary::getTotalWords() const {
