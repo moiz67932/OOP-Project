@@ -77,6 +77,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,6 +112,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,15 +143,18 @@
   <ItemGroup>
     <ClCompile Include="AchievementSystem.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Category.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameBoy.cpp" />
     <ClCompile Include="GameKeyboard.cpp" />
     <ClCompile Include="Hangman.cpp" />
+    <ClCompile Include="HangmanFigure.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Leaderboard.cpp" />
     <ClCompile Include="Letter.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="OOP Project SFML.cpp" />
+    <ClCompile Include="PauseResumeHandler.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Snake.cpp" />
@@ -160,14 +165,17 @@
   <ItemGroup>
     <ClInclude Include="AchievementSystem.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Category.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBoy.h" />
     <ClInclude Include="GameKeyboard.h" />
     <ClInclude Include="Hangman.h" />
+    <ClInclude Include="HangmanFigure.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Leaderboard.h" />
     <ClInclude Include="Letter.h" />
     <ClInclude Include="MainMenu.h" />
+    <ClInclude Include="PauseResumeHandler.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Snake.h" />

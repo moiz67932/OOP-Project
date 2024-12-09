@@ -3,17 +3,13 @@
 #include <fstream>
 using namespace std;
 
-Player::Player(const string& name, int id) {
+
+Player::Player(const string& name) {
     this->name = name;
-    this->id = id;
 }
 
 string Player::getName() { 
     return name; 
-}
-
-int Player::getId() { 
-    return id;
 }
 
 void Player::updateAchievement(const string& game, int score) {
@@ -21,25 +17,25 @@ void Player::updateAchievement(const string& game, int score) {
 }
 
 void Player::saveProgress() const {
-    ofstream file("player_" + to_string(id) + ".txt");
+    ofstream file("player_" + name + ".txt");
     if (file.is_open()) {
-        file << name << "\n" << id << "\n";
+        file << name << "\n";
         achievements.saveAchievements(file);
         file.close();
     }
 }
 
 void Player::loadProgress() {
-    ifstream file("player_" + to_string(id) + ".txt");
+    ifstream file("player_" + name + ".txt");
     if (file.is_open()) {
         getline(file, name);
-        file >> id;
+        file >> name;
         achievements.loadAchievements(file);
         file.close();
     }
 }
 
 void Player::displayProgress() const {
-    cout << "Player: " << name << " (ID: " << id << ")\n";
+    cout << "Player: " << name << "\n";
     achievements.displayAchievements();
 }

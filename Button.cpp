@@ -2,18 +2,10 @@
 using namespace std;
 
 // Constructor: Initialize button shape, text, and load font
-Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const string& buttonText, const string& fontPath, const string& buttonTexturePath) {
+Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const string& buttonText, const string& fontPath) {
     if (!font.loadFromFile(fontPath)) {
         // Handle error if the font fails to load
     }
-
-    //Load Button Texture
-    buttonTexture.loadFromFile(buttonTexturePath);
-    buttonSprite.setTexture(buttonTexture);
-    // Set texture origin to the center
-    sf::FloatRect textureBounds = buttonSprite.getLocalBounds();
-    buttonSprite.setOrigin(textureBounds.width / 2.0f, textureBounds.height / 2.0f);
-    buttonSprite.setPosition(position);
 
     // Configure the button shape
     shape.setSize(size);
@@ -33,14 +25,14 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const str
     // Center the text within the button
     sf::FloatRect textBounds = text.getLocalBounds();
     text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
-    text.setPosition(position.x + size.x / 2.0f, position.y + size.y / 2.0f-10.0);
+    text.setPosition(position.x + size.x / 2.0f, position.y + size.y / 2.0f - 10.0);
 
     isHovered = false;
 }
 
 // Draw the button on the window
 void Button::draw(sf::RenderWindow& window) {
-    window.draw(buttonSprite);
+    window.draw(shape);
     window.draw(text);
 }
 
@@ -67,4 +59,18 @@ void Button::handleEvent(const sf::Event& event, const sf::RenderWindow& window)
 // Return whether the button is currently hovered
 bool Button::isButtonHovered() const {
     return isHovered;
+}
+
+// Set the position of the button
+void Button::setPosition(const sf::Vector2f& position) {
+    shape.setPosition(position);
+
+    // Update the text position to be centered within the button
+    sf::FloatRect textBounds = text.getLocalBounds();
+    text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+    text.setPosition(position.x + shape.getSize().x / 2.0f, position.y + shape.getSize().y / 2.0f - 10.0);
+}
+
+sf::FloatRect Button::getGlobalBounds() const {
+    return shape.getGlobalBounds();
 }

@@ -15,7 +15,6 @@ protected:
 
 public:
     std::string name;
-    int score;
 
     virtual void startGame() = 0;
     virtual void endGame() = 0;

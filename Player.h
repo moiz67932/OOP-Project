@@ -6,14 +6,11 @@ using namespace std;
 class Player {
 private:
     string name;
-    int id;
     AchievementSystem achievements;
-
 public:
-    Player(const string& name, int id);
+    Player(const string& name);
 
     string getName();
-    int getId();
 
     void updateAchievement(const string& game, int score);
     void saveProgress() const;

@@ -1,0 +1,16 @@
+{
+  "hangman": {
+    "gamesPlayed": 0,
+    "gamesWon": 0,
+    "totalTime": 0
+  },
+  "name": "nashwa",
+  "snake": {
+    "highestScore": 0
+  },
+  "wordle": {
+    "gamesPlayed": 1,
+    "gamesWon": 1,
+    "totalTime": 53
+  }
+}

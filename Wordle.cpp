@@ -1,4 +1,5 @@
 #include "Wordle.h"
+using namespace std;
 
 void Wordle::loadFont()
 {
@@ -10,19 +11,26 @@ void Wordle::loadFont()
 void Wordle::loadBackground()
 {
     // Load the background texture
-    if (!backgroundTexture.loadFromFile("./assets/images/background.jpg")) {
+    if (!backgroundTexture.loadFromFile("./assets/images/backgroundWordle.jpg")) {
         cout << "Background Loading Error :: Game.cpp" << endl;
     }
     backgroundSprite.setTexture(backgroundTexture);
 }
 
-Wordle::Wordle() {
-    std::cout << "Wordle Game Initialized!" << std::endl;
-    // Initialize resources for Wordle game
-    loadFont();
-    loadBackground();
-    selectRandomWord();
-    resetGame();
+Wordle::Wordle():pauseResumeHandler(sf::Vector2f(100.f, 50.f), font){
+    cout << "Wordle Game Initialized!" << endl;
+
+    // Reset game state
+    currentRow = 0;
+    currentColumn = 0;
+    gameWon = false;
+    // Message Reset
+    messageText.setString(' ');
+    shouldReturnToMenu = false;
+    currentPlayer = nullptr;
+    showMessage = false;
+    windowPtr = nullptr;
+
 
     // Initialize Back Button
     shouldReturnToMenu = false;
@@ -40,25 +48,34 @@ Wordle::Wordle() {
     backButtonText.setOrigin(textBounds.left + textBounds.width / 2.0f,
         textBounds.top + textBounds.height / 2.0f);
     backButtonText.setPosition(
-        backButton.getPosition().x + backButton.getSize().x / 2.f,
-        backButton.getPosition().y + backButton.getSize().y / 2.f
+        backButton.getPosition().x + backButton.getSize().x / 3.6f,
+        backButton.getPosition().y + backButton.getSize().y / 1.5f
     );
 
+    // Leaderboard Text
+    leaderboardText.setFont(font);
+    leaderboardText.setString("Leaderboard");
+    leaderboardText.setCharacterSize(20);
+    leaderboardText.setFillColor(sf::Color::Black);
+    leaderboardText.setPosition(650, playerNameBorder.getPosition().y + 80);
 
 }
 
 Wordle::~Wordle() {
-    std::cout << "Wordle Game Destroyed!" << std::endl;
-    // Clean up resources
+    cout << "Wordle Game Destroyed!" << endl;
 }
 
 void Wordle::startGame() {
-    std::cout << "Starting Wordle Game!" << std::endl;
+    cout << "Starting Wordle Game!" << endl;
+    // Initialize resources for Wordle game
+    loadFont();
+    loadBackground();
+    selectRandomWord();
+    resetGame();
 }
 
 void Wordle::endGame() {
-    std::cout << "Ending Wordle Game!" << std::endl;
-    // Cleanup or save progress
+    cout << "Ending Wordle Game!" << endl;
 }
 
 void Wordle::resetGame() {
@@ -78,13 +95,14 @@ void Wordle::resetGame() {
     // Message Reset
     messageText.setString(' ');
     shouldReturnToMenu = false;
+    gameTimer.restart(); // Reset the game timer
+
 }
 
 void Wordle::initializeGrid() {
-    // Initialize the grid with empty Letters
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
-            letterGrid[i][j].reset(); // Uses the reset method from Letter class
+            letterGrid[i][j].reset();
         }
     }
 }
@@ -107,7 +125,7 @@ void Wordle::checkWord() {
 
     // Create a copy of the target word to track matched letters
     //char tempTargetWord[6];
-    std::string tempTargetWord = targetWord;
+    string tempTargetWord = targetWord;
     //strcpy(tempTargetWord, targetWord);
 
     // Exact Match
@@ -154,6 +172,7 @@ void Wordle::checkWord() {
 
     if (isCorrect) {
         gameWon = true;
+        updateStats();
 
         // Win Message
         messageText.setFont(font);
@@ -166,9 +185,10 @@ void Wordle::checkWord() {
         PlayAgainButton();
     }
     else if (currentRow == 5) { 
+        updateStats();
         // Lose Message
         messageText.setFont(font);
-        messageText.setString("Better Luck Next Time!\nTarget Word: " + std::string(targetWord));
+        messageText.setString("Better Luck Next Time!\nTarget Word: " + string(targetWord));
         messageText.setCharacterSize(24);
         messageText.setFillColor(sf::Color::Red);
         messageText.setPosition(280.f, 20.f);
@@ -197,28 +217,47 @@ void Wordle::PlayAgainButton() {
     playAgainText.setPosition(300.f, 510.f);
 }
 
-void Wordle::handleInput(sf::Event event) {
-    // Play again button logic remains the same
+void Wordle::handleInput(sf::Event event, sf::RenderWindow* window)
+{
+    pauseResumeHandler.handleEvent(event, *window);
+    if (pauseResumeHandler.isGamePaused()) {
+        return;
+    }
+
+    sf::Vector2f mousePos = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
+
+    if (showLeaderboard) {
+        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+            if (leaderboard.isCloseButtonClicked(mousePos)) {
+                showLeaderboard = false; // Close the leaderboard
+                return;
+            }
+        }
+    }
+
     if (gameWon && event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button != sf::Mouse::Left) return;
 
-        sf::Vector2i mousePixelPos = sf::Mouse::getPosition(*windowPtr);
-        sf::Vector2f mousePos = windowPtr->mapPixelToCoords(mousePixelPos);
-
-        // Back button logic
+        // Handle back button and play again button clicks
         if (backButton.getGlobalBounds().contains(mousePos)) {
-            // Signal to return to main menu
-            std::cout << "HALO BRUDER!!" << std::endl;
             shouldReturnToMenu = true;
             return;
         }
-
         if (playAgainButton.getGlobalBounds().contains(mousePos)) {
             resetGame();
             return;
         }
     }
 
+    if (!showLeaderboard && event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            // Handle leaderboard button click
+            if (leaderboardText.getGlobalBounds().contains(mousePos)) {
+                showLeaderboard = true;
+                return;
+            }
+        }
+    }
     // Existing input handling if not returning to menu
     if (shouldReturnToMenu) return;
 
@@ -228,11 +267,11 @@ void Wordle::handleInput(sf::Event event) {
         if (gameWon) return;
 
         // Check if the input is a letter
-        if (std::isalpha(event.text.unicode)) {
+        if (isalpha(event.text.unicode)) {
             // Only allow input if we haven't filled the current row
             if (currentColumn < 5) {
                 // Convert to uppercase
-                char letter = std::toupper(static_cast<char>(event.text.unicode));
+                char letter = toupper(static_cast<char>(event.text.unicode));
                 letterGrid[currentRow][currentColumn].setCharacter(letter);
                 currentColumn++;
             }
@@ -268,6 +307,10 @@ void Wordle::render(sf::RenderWindow& window) {
     window.draw(backgroundSprite);
     renderGrid(window);
     keyboard.render(window);
+    window.draw(playerNameBorder);
+    window.draw(playerNameText);
+    window.draw(leaderboardText);
+    renderLeaderboard(window);
 
     // Draw message if exists
     if (!messageText.getString().isEmpty()) {
@@ -283,6 +326,29 @@ void Wordle::render(sf::RenderWindow& window) {
     // Draw back button
     window.draw(backButton);
     window.draw(backButtonText);
+    pauseResumeHandler.draw(window);
+
+}
+
+void Wordle::setPlayer(Player* player)
+{
+    if (player == nullptr) {
+        currentPlayer = new Player("Guest");
+    }
+    else {
+        currentPlayer = player;
+    }
+    playerNameBorder.setSize({ 150, 50 });
+    playerNameBorder.setPosition(650, 10);  // Top-right corner
+    playerNameBorder.setFillColor(sf::Color::Cyan);
+
+    playerNameText.setFont(font);
+    playerNameText.setString(currentPlayer->getName());
+    playerNameText.setCharacterSize(20);
+    playerNameText.setFillColor(sf::Color::Black);
+    playerNameText.setPosition(playerNameBorder.getPosition().x + 20, playerNameBorder.getPosition().y + 10);
+
+    
 }
 
 void Wordle::renderGrid(sf::RenderWindow& window) {
@@ -305,7 +371,7 @@ void Wordle::renderGrid(sf::RenderWindow& window) {
             // Create and position the text
             sf::Text letter;
             letter.setFont(font);
-            letter.setString(std::string(1, letterGrid[i][j].getCharacter()));
+            letter.setString(string(1, letterGrid[i][j].getCharacter()));
             letter.setCharacterSize(20);
             letter.setFillColor(sf::Color::Black);
 
@@ -327,4 +393,22 @@ void Wordle::renderGrid(sf::RenderWindow& window) {
             }
         }
     }
+}
+
+void Wordle::renderLeaderboard(sf::RenderWindow& window) {
+    if (!showLeaderboard) return;
+    leaderboard.display(window, "wordle", font);
+}
+
+void Wordle::updateStats() {
+    // Check if we have a valid player
+    if (!currentPlayer) return;
+
+    // Update stats using the new Leaderboard class
+    leaderboard.updatePlayerStats(
+        currentPlayer->getName(),
+        "wordle",
+        gameWon,
+        gameTimer.getElapsedTime().asSeconds()
+    );
 }
